@@ -33,7 +33,7 @@ def render_report(metrics: MetricsReport) -> str:
 - Name: Đinh Huy Mạnh
 - Student ID: 2A202601677
 - Repository: https://github.com/huymanh222004/phase2-k3-4-track3-day8-langgraph-agent-2A202601677-DinhHuyManh
-- Baseline commit: `6d8252d3c3499a9540dc4c24570b7197d6c12694`
+- Implementation commit: `425ea5f`
 - Date: 2026-08-25
 
 ## 2. Architecture
