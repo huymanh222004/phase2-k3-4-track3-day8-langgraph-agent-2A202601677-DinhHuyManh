@@ -1,32 +1,4 @@
-"""Render an auditable Markdown report from MetricsReport data."""
-
-from __future__ import annotations
-
-from pathlib import Path
-
-from .metrics import MetricsReport
-
-
-def render_report(metrics: MetricsReport) -> str:
-    """Render a complete lab report from metrics data.
-
-    The generated report includes:
-    1. Metrics summary table (total scenarios, success rate, retries, interrupts)
-    2. Per-scenario results table
-    3. Architecture explanation (your graph design, state schema, reducers)
-    4. Failure analysis (at least two failure modes you considered)
-    5. Improvement plan
-
-    Use reports/lab_report_template.md as your guide.
-
-    Return: formatted markdown string
-    """
-    scenario_rows = "\n".join(
-        f"| {item.scenario_id} | {item.expected_route} | {item.actual_route or '-'} | "
-        f"{'Yes' if item.success else 'No'} | {item.retry_count} | {item.interrupt_count} |"
-        for item in metrics.scenario_metrics
-    )
-    return f"""# Day 08 Lab Report
+# Day 08 Lab Report
 
 ## 1. Team / student
 
@@ -56,16 +28,22 @@ terminal branch passes through `finalize -> END`.
 
 | Metric | Value |
 |---|---:|
-| Total scenarios | {metrics.total_scenarios} |
-| Success rate | {metrics.success_rate:.1%} |
-| Average events/nodes visited | {metrics.avg_nodes_visited:.2f} |
-| Total retries | {metrics.total_retries} |
-| Approval-node visits | {metrics.total_interrupts} |
-| Verified resume | {"Yes" if metrics.resume_success else "No"} |
+| Total scenarios | 7 |
+| Success rate | 100.0% |
+| Average events/nodes visited | 6.43 |
+| Total retries | 3 |
+| Approval-node visits | 2 |
+| Verified resume | No |
 
 | Scenario | Expected route | Actual route | Success | Retries | Approval visits |
 |---|---|---|---:|---:|---:|
-{scenario_rows}
+| S01_simple | simple | simple | Yes | 0 | 0 |
+| S02_tool | tool | tool | Yes | 0 | 0 |
+| S03_missing | missing_info | missing_info | Yes | 0 | 0 |
+| S04_risky | risky | risky | Yes | 0 | 1 |
+| S05_error | error | error | Yes | 2 | 0 |
+| S06_delete | risky | risky | Yes | 0 | 1 |
+| S07_dead_letter | error | error | Yes | 1 | 0 |
 
 `latency_ms` remains zero because the starter metric helper does not receive wall-clock duration.
 Approval visits use a deterministic mock gate and therefore are not claims of real interrupts.
@@ -86,7 +64,7 @@ Approval visits use a deterministic mock gate and therefore are not claims of re
 ## 6. Persistence / recovery evidence
 
 The CLI constructs one `MemorySaver`, passes it to `build_graph`, and invokes each scenario with
-`{{"configurable": {{"thread_id": state["thread_id"]}}}}`. This preserves per-thread checkpoint
+`{"configurable": {"thread_id": state["thread_id"]}}`. This preserves per-thread checkpoint
 history within the process. A local probe for `thread-persistence-proof` returned six history
 states and the terminal event trail `intake,classify,clarify,finalize`. `resume_success` remains
 false because durable restart/resume was not implemented or claimed.
@@ -101,11 +79,3 @@ workflow deterministic and CI-safe.
 First add durable SQLite persistence plus a restart/resume integration test. This would turn the
 current in-process checkpoint evidence into verified recovery while keeping the same state and
 thread contract.
-"""
-
-
-def write_report(metrics: MetricsReport, output_path: str | Path) -> None:
-    """Write the rendered report to a file."""
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(render_report(metrics), encoding="utf-8")

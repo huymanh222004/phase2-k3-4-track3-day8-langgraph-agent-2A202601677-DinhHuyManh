@@ -2,13 +2,15 @@
 
 from __future__ import annotations
 
-from typing import Any
+from langgraph.checkpoint.base import BaseCheckpointSaver
 
 
-def build_checkpointer(kind: str = "memory", database_url: str | None = None) -> Any | None:
+def build_checkpointer(
+    kind: str = "memory", database_url: str | None = None
+) -> BaseCheckpointSaver | None:
     """Return a LangGraph checkpointer.
 
-    TODO(student): implement SQLite support for the persistence extension track.
+    SQLite and Postgres are optional extension backends and are not enabled in the core build.
     The starter provides MemorySaver only — SQLite/Postgres are extension tasks.
 
     For SQLite:
@@ -23,12 +25,13 @@ def build_checkpointer(kind: str = "memory", database_url: str | None = None) ->
 
         return MemorySaver()
     if kind == "sqlite":
-        raise NotImplementedError(
-            "TODO(student): implement SQLite checkpointer. "
-            "Hint: pip install langgraph-checkpoint-sqlite, then use SqliteSaver"
+        raise RuntimeError(
+            "SQLite persistence is an optional extension and is not enabled in this submission. "
+            "Use checkpointer: memory for the supported core workflow."
         )
     if kind == "postgres":
-        raise NotImplementedError(
-            "TODO(student): implement Postgres checkpointer (optional extension)"
+        raise RuntimeError(
+            "Postgres persistence is an optional extension and is not enabled in this submission. "
+            "Use checkpointer: memory for the supported core workflow."
         )
     raise ValueError(f"Unknown checkpointer kind: {kind}")
